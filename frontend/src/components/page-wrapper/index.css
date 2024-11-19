@@ -1,0 +1,10 @@
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 2em 0;
+}
+
+.page-wrapper > div {
+  width: 1440px;
+  padding: 0 1em;
+}
