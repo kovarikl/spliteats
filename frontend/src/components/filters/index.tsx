@@ -1,24 +1,47 @@
-import { Button, Card } from "@chakra-ui/react";
+import { Card } from "@chakra-ui/react";
+import { CheckboxGroup, Fieldset } from "@chakra-ui/react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useRestaurantStore } from "@/stores/order";
 
-// TODO: consumes some "section list" with toggleable filters, radios, checkboxes, etc.
-// TODO: keep position fixed on scroll
 const Filters = () => {
-  return (
-    <Card.Root shadow="lg" borderRadius="lg" border="none" overflow="hidden">
-      <Card.Body gap="2">
-        <Card.Title fontSize="1.6em">Filters</Card.Title>
-        <Card.Description>
-          This is the card body. Lorem ipsum dolor sit amet, consectetur
-          adipiscing elit. Curabitur nec odio vel dui euismod fermentum.
-          Curabitur nec odio vel dui euismod fermentum.
-        </Card.Description>
-      </Card.Body>
-      <Card.Footer justifyContent="flex-end">
-        <Button variant="outline">View</Button>
-        <Button>Join</Button>
-      </Card.Footer>
-    </Card.Root>
-  );
+    const categories = useRestaurantStore((state) => state.categories);
+    const selectedCategories = useRestaurantStore((state) => state.selectedCategories);
+    const updateFilters = useRestaurantStore((state) => state.updateFilters);
+
+    const handleCheckboxGroupChange = (clickedCategory) => {
+
+        // Toggle the selected category
+        const updatedCategories = selectedCategories.includes(clickedCategory)
+            ? selectedCategories.filter((category) => category !== clickedCategory)
+            : [...selectedCategories, clickedCategory];
+
+        updateFilters(updatedCategories);
+    };
+
+    return (
+        <Card.Root shadow="lg" borderRadius="sm" border="none" overflow="hidden">
+            <Card.Body gap="2">
+                <Card.Title fontSize="1.6em">Filters</Card.Title>
+                <Card.Description>
+                    <Fieldset.Root>
+                        <CheckboxGroup value={selectedCategories}>
+                            <Fieldset.Content>
+                                {categories.map((category) => (
+                                    <Checkbox
+                                        value={category}
+                                        key={category}
+                                        onChange={() => handleCheckboxGroupChange(category)}
+                                    >
+                                        {category}
+                                    </Checkbox>
+                                ))}
+                            </Fieldset.Content>
+                        </CheckboxGroup>
+                    </Fieldset.Root>
+                </Card.Description>
+            </Card.Body>
+        </Card.Root>
+    );
 };
 
 export { Filters };

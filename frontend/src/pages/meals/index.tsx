@@ -1,25 +1,38 @@
-import { Filters } from "../../components/filters";
-import { GridList } from "../../components/grid-list";
-import { RestaurantDetail } from "../../components/restaurant-detail";
-import { Search } from "../../components/search";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useRestaurantStore } from "@/stores/order";
+import { RestaurantDetail } from "@/components/restaurant-detail";
 import "./index.css";
+import {Filters} from "@/components/filters";
+import {MealsWithCategories} from "@/components/meal-category";
 
-// TODO: change layout - first - restaurant with info - full width of page wrapper
-// TODO: second - left - filter? (or just top with search)
-// then full width list of meals (or with filters)
 const Meals = () => {
-  return (
-    <div className="meals">
-      <RestaurantDetail />
-      <div className="meals-list">
-        <Filters />
-        <div className="list-view">
-          <Search />
-          <GridList />
+    const { restaurantId } = useParams();
+    const selectRestaurant = useRestaurantStore((state) => state.selectRestaurant);
+    const meals = useRestaurantStore((state) => state.meals);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (restaurantId) {
+                await selectRestaurant(restaurantId);
+            }
+        };
+        fetchData();
+    }, [restaurantId, selectRestaurant]);
+
+    if (meals.length === 0) {
+        return <p>Loading meals...</p>;
+    }
+
+    return (
+        <div className="meals">
+            <RestaurantDetail />
+            <div className="meals-list">
+                <Filters />
+                <MealsWithCategories meals={meals} />
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export { Meals };
