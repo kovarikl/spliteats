@@ -1,7 +1,7 @@
 import { Badge, Image, Text, Button, HStack, Float} from "@chakra-ui/react";
 import {Card as ChakraCard} from "@chakra-ui/react";
-import {FaDollarSign} from "react-icons/fa";
 import {Card} from "@/components/card";
+import {TbCurrencyKroneCzech} from "react-icons/tb";
 
 const MealCard = ({ meal }) => {
     const { name, description, price, type } = meal;
@@ -24,7 +24,7 @@ const MealCard = ({ meal }) => {
                 <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="1">
                     <HStack spacing={1}>
                         <Text as="span">{price}</Text>
-                        <FaDollarSign color="green" />
+                        <TbCurrencyKroneCzech color={"white"} />
                     </HStack>
                 </Text>
             </ChakraCard.Body>
