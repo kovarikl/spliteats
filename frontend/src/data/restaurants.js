@@ -1,9 +1,9 @@
 import raw_restaurants from "./restaurants.json";
 
 // The probability of getting and error when loading any data.
-export const ERROR_RATE = 0.2;
+export const ERROR_RATE = 0;
 // The time it takes (on average) to load one item (simulating data processing and network activity).
-export const LOAD_TIME = 1000;
+export const LOAD_TIME = 1;
 
 // Assign IDs to restaurants and perform basic integrity checking,
 // in case the random data is not correct.

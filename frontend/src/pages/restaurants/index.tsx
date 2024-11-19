@@ -1,56 +1,35 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Filters } from "@/components/filters";
 import { GridList } from "@/components/grid-list";
 import { PageHeadline } from "@/components/page-headline";
 import { Search } from "@/components/search";
 import { restaurants } from "@/data/restaurants";
 import { Box } from "@chakra-ui/react";
+import { useRestaurantStore} from "@/stores/order.ts";
 
 const Restaurants = () => {
-    const [restaurantList, setRestaurantList] = useState([]);
-    const [categories, setCategories] = useState([]); // Initialize with an empty array
-    const [filteredList, setFilteredList] = useState([]);
+    const setRestaurants = useRestaurantStore((state) => state.setRestaurants);
 
     useEffect(() => {
         const fetchRestaurants = async () => {
             try {
                 const data = await restaurants.getAllMetadata();
-                setRestaurantList(data);
-                setFilteredList(data);
-
-                // Extract unique categories
-                const uniqueCategories = Array.from(
-                    new Set(data.flatMap((restaurant) => restaurant.categories))
-                );
-                setCategories(uniqueCategories);
+                setRestaurants(data); // Initialize restaurant data in Zustand store
             } catch (err) {
                 console.error("Error fetching restaurants:", err);
             }
         };
         fetchRestaurants();
-    }, []);
+    }, [setRestaurants]);
 
-    const handleFilterChange = (selectedCategories) => {
-        if (!selectedCategories.length) {
-            setFilteredList(restaurantList); // Show all if no filters are selected
-        } else {
-            setFilteredList(
-                restaurantList.filter((restaurant) =>
-                    restaurant.categories.some((category) =>
-                        selectedCategories.includes(category)
-                    )
-                )
-            );
-        }
-    };
 
     return (
         <Box display="flex" gap="4">
-            <Filters categories={categories} onChange={handleFilterChange} />
+            <Filters />
             <Box flex="1">
                 <Search />
                 <PageHeadline title="Restaurants" />
-                <GridList restaurants={filteredList} />
+                <GridList/>
             </Box>
         </Box>
     );
