@@ -7,7 +7,7 @@ import {FaDollarSign} from "react-icons/fa";
 
 const RestaurantCard = ({ id, name, categories, address, ratingAverage, priceCategory }) => {
   return (
-      <Link to={`/restaurant/${id}`}>
+      <Link to={`/meals/${id}`}>
         <Card>
           <Image
               src="https://cdn.apartmenttherapy.info/image/upload/v1644622714/k/Photo/Large%20Packages/2022-03-KESS-Tools/food-storage-glass-containers-horizontal.jpg"

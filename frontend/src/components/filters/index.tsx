@@ -19,7 +19,7 @@ const Filters = () => {
     };
 
     return (
-        <Card.Root shadow="lg" borderRadius="lg" border="none" overflow="hidden">
+        <Card.Root shadow="lg" borderRadius="sm" border="none" overflow="hidden">
             <Card.Body gap="2">
                 <Card.Title fontSize="1.6em">Filters</Card.Title>
                 <Card.Description>
@@ -30,7 +30,7 @@ const Filters = () => {
                                     <Checkbox
                                         value={category}
                                         key={category}
-                                        onChange={() => handleCheckboxGroupChange(category)} // Custom onChange for toggling
+                                        onChange={() => handleCheckboxGroupChange(category)}
                                     >
                                         {category}
                                     </Checkbox>

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import {restaurants} from "@/data/restaurants";
 
 interface OrderItem {
   // TODO: meals
@@ -26,14 +27,23 @@ export const useRestaurantStore = create((set) => ({
     restaurants: [],
     filteredRestaurants: [],
     categories: [],
+    meals: [],
     selectedCategories: [],
+    selectedRestaurant: null,
+    selectRestaurant: async (id) => {
+        const restaurant = await restaurants.getRestaurant(id);
+        set({
+            selectedRestaurant: restaurant,
+            meals: restaurant?.meals || [],
+        });
+    },
     setRestaurants: (data) => {
         set({
             restaurants: data,
             filteredRestaurants: data,
             categories: Array.from(
                 new Set(data.flatMap((restaurant) => restaurant.categories))
-            ),
+            ).sort(),
         });
     },
     updateFilters: (selectedCategories) =>
