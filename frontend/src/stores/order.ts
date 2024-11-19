@@ -23,33 +23,39 @@ const useOrderStore = create<OrderState>()((set) => ({
 }));
 
 export const useRestaurantStore = create((set) => ({
-  restaurants: [], // Full restaurant list
-  filteredRestaurants: [], // Restaurants after applying filters
-  categories: [], // Unique restaurant categories
-  selectedCategories: [], // Currently selected filter categories
-
-  // Set the full restaurant list and extract categories
-  setRestaurants: (data) =>
-      set({
-        restaurants: data,
-        filteredRestaurants: data,
-        categories: Array.from(
-            new Set(data.flatMap((restaurant) => restaurant.categories))
-        ),
-      }),
-
-  // Update selected categories and filter restaurants
-  updateFilters: (selectedCategories) =>
-      set((state) => ({
-        selectedCategories,
-        filteredRestaurants: selectedCategories.length
-            ? state.restaurants.filter((restaurant) =>
-                restaurant.categories.some((category) =>
-                    selectedCategories.includes(category)
+    restaurants: [],
+    filteredRestaurants: [],
+    categories: [],
+    selectedCategories: [],
+    setRestaurants: (data) => {
+        set({
+            restaurants: data,
+            filteredRestaurants: data,
+            categories: Array.from(
+                new Set(data.flatMap((restaurant) => restaurant.categories))
+            ),
+        });
+    },
+    updateFilters: (selectedCategories) =>
+        set((state) => {
+            const filtered = selectedCategories.length
+                ? state.restaurants.filter((restaurant) =>
+                    restaurant.categories.some((category) =>
+                        selectedCategories.includes(category)
+                    )
                 )
-            )
-            : state.restaurants,
-      })),
+                : state.restaurants;
+            return {
+                selectedCategories,
+                filteredRestaurants: filtered,
+            };
+        }),
 }));
+
+
+//For debugging useRestaurantStore in browser console
+if (typeof window !== "undefined") {
+    window.useRestaurantStore = useRestaurantStore;
+}
 
 export { useOrderStore };

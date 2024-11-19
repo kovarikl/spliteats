@@ -3,7 +3,6 @@ import { RestaurantCard } from "@/components/restaurant-card";
 import {useRestaurantStore} from "@/stores/order.ts";
 
 const GridList = () => {
-    // Subscribe to filteredRestaurants from the Zustand store
     const filteredRestaurants = useRestaurantStore((state) => state.filteredRestaurants);
 
     return (

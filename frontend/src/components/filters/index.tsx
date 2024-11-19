@@ -1,14 +1,21 @@
 import { Card } from "@chakra-ui/react";
 import { CheckboxGroup, Fieldset } from "@chakra-ui/react";
 import { Checkbox } from "@/components/ui/checkbox";
-import {useRestaurantStore} from "@/stores/order.ts";
+import { useRestaurantStore } from "@/stores/order";
 
 const Filters = () => {
     const categories = useRestaurantStore((state) => state.categories);
+    const selectedCategories = useRestaurantStore((state) => state.selectedCategories);
     const updateFilters = useRestaurantStore((state) => state.updateFilters);
 
-    const handleCheckboxGroupChange = (selectedCategories) => {
-        updateFilters(selectedCategories);
+    const handleCheckboxGroupChange = (clickedCategory) => {
+
+        // Toggle the selected category
+        const updatedCategories = selectedCategories.includes(clickedCategory)
+            ? selectedCategories.filter((category) => category !== clickedCategory)
+            : [...selectedCategories, clickedCategory];
+
+        updateFilters(updatedCategories);
     };
 
     return (
@@ -17,10 +24,14 @@ const Filters = () => {
                 <Card.Title fontSize="1.6em">Filters</Card.Title>
                 <Card.Description>
                     <Fieldset.Root>
-                        <CheckboxGroup onChange={handleCheckboxGroupChange}>
+                        <CheckboxGroup value={selectedCategories}>
                             <Fieldset.Content>
                                 {categories.map((category) => (
-                                    <Checkbox value={category} key={category}>
+                                    <Checkbox
+                                        value={category}
+                                        key={category}
+                                        onChange={() => handleCheckboxGroupChange(category)} // Custom onChange for toggling
+                                    >
                                         {category}
                                     </Checkbox>
                                 ))}
