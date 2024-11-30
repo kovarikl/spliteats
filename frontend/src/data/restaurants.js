@@ -3,7 +3,7 @@ import raw_restaurants from "./restaurants.json";
 // The probability of getting and error when loading any data.
 export const ERROR_RATE = 0;
 // The time it takes (on average) to load one item (simulating data processing and network activity).
-export const LOAD_TIME = 1;
+export const LOAD_TIME = 500;
 
 // Assign IDs to restaurants and perform basic integrity checking,
 // in case the random data is not correct.
@@ -12,6 +12,7 @@ let restaurant_ids = [];
 let restaurant_data = {};
 for (let r of raw_restaurants) {
   i += 1;
+  let j = 0;
 
   const id = `id_${i}`;
   r["id"] = id;
@@ -51,6 +52,10 @@ for (let r of raw_restaurants) {
     }
   }
   for (let meal of r["meals"]) {
+    j += 1;
+    meal["id"] = `id_${j}`;
+    meal["restaurantId"] = id;
+
     if (!("name" in meal)) {
       throw new Error("Meal name missing.");
     }

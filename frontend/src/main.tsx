@@ -8,7 +8,9 @@ import { Restaurants } from "./pages/restaurants/index.tsx";
 import { Meals } from "./pages/meals/index.tsx";
 import { SlaveCheckout } from "./pages/slave-checkout/index.tsx";
 import { Provider } from "./components/ui/provider.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// TODO: theming, background colors, ...
 const router = createBrowserRouter([
   {
     path: "/",
@@ -38,10 +40,14 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider>
-      <RouterProvider router={router} />
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider>
+        <RouterProvider router={router} />
+      </Provider>
+    </QueryClientProvider>
   </StrictMode>
 );
