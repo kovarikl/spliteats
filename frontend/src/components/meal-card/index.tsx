@@ -18,9 +18,6 @@ const MealCard = ({ meal }: { meal: Meal }) => {
     const order = useOrderStore((state) => state.order);
     const uniqueId = `${meal.restaurantId}-${meal.id}`;
     const cartEntry = order.find((entry) => entry.id === uniqueId);
-    console.log("Unique id",uniqueId);
-    console.log("Cart Entry",cartEntry);
-    console.log("Entry : ", order);
     const handleAdd = () => {
         add(meal, meal.restaurantId);
     };
