@@ -21,6 +21,8 @@ export type DayOfWeek =
 export type OpeningHours = Record<DayOfWeek, [string]>;
 
 export interface Meal {
+  id: string;
+  restaurantId: string;
   name: string;
   description: string;
   // Amount in CZK

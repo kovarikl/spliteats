@@ -1,47 +1,54 @@
-import { Card } from "@chakra-ui/react";
-import { CheckboxGroup, Fieldset } from "@chakra-ui/react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useRestaurantStore } from "@/stores/order";
+import {
+  Button,
+  Card,
+  CheckboxGroup,
+  Fieldset,
+  HStack,
+} from "@chakra-ui/react";
 
-const Filters = () => {
-    const categories = useRestaurantStore((state) => state.categories);
-    const selectedCategories = useRestaurantStore((state) => state.selectedCategories);
-    const updateFilters = useRestaurantStore((state) => state.updateFilters);
+interface Props {
+  filters: string[];
+  activeFilters: string[];
+  onFilterChange: (filter: string) => void;
+  onClearFilters: () => void;
+}
 
-    const handleCheckboxGroupChange = (clickedCategory) => {
-
-        // Toggle the selected category
-        const updatedCategories = selectedCategories.includes(clickedCategory)
-            ? selectedCategories.filter((category) => category !== clickedCategory)
-            : [...selectedCategories, clickedCategory];
-
-        updateFilters(updatedCategories);
-    };
-
-    return (
-        <Card.Root shadow="lg" borderRadius="sm" border="none" overflow="hidden">
-            <Card.Body gap="2">
-                <Card.Title fontSize="1.6em">Filters</Card.Title>
-                <Card.Description>
-                    <Fieldset.Root>
-                        <CheckboxGroup value={selectedCategories}>
-                            <Fieldset.Content>
-                                {categories.map((category) => (
-                                    <Checkbox
-                                        value={category}
-                                        key={category}
-                                        onChange={() => handleCheckboxGroupChange(category)}
-                                    >
-                                        {category}
-                                    </Checkbox>
-                                ))}
-                            </Fieldset.Content>
-                        </CheckboxGroup>
-                    </Fieldset.Root>
-                </Card.Description>
-            </Card.Body>
-        </Card.Root>
-    );
+const Filters = ({
+  filters,
+  activeFilters,
+  onFilterChange,
+  onClearFilters,
+}: Props) => {
+  return (
+    <Card.Root shadow="lg" borderRadius="sm" border="none" overflow="hidden">
+      <Card.Body gap="2">
+        <HStack justifyContent="space-between" paddingBottom={2}>
+          <Card.Title fontSize="1.6em">Filters</Card.Title>
+          <Button variant="ghost" onClick={onClearFilters}>
+            Clear
+          </Button>
+        </HStack>
+        <Card.Description>
+          <Fieldset.Root>
+            <CheckboxGroup value={activeFilters}>
+              <Fieldset.Content>
+                {filters.map((filter) => (
+                  <Checkbox
+                    value={filter}
+                    key={filter}
+                    onChange={() => onFilterChange(filter)}
+                  >
+                    {filter}
+                  </Checkbox>
+                ))}
+              </Fieldset.Content>
+            </CheckboxGroup>
+          </Fieldset.Root>
+        </Card.Description>
+      </Card.Body>
+    </Card.Root>
+  );
 };
 
 export { Filters };

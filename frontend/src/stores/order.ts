@@ -1,71 +1,64 @@
 import { create } from "zustand";
-import {restaurants} from "@/data/restaurants";
+import { Meal } from "@/data/restaurants";
 
 interface OrderItem {
-  // TODO: meals
   id: string;
+  meal: Meal;
+  quantity: number;
 }
 
 interface OrderState {
   order: OrderItem[];
-  add: (item: OrderItem) => void;
-  remove: (item: OrderItem) => void;
+  add: (meal: Meal) => void;
+  remove: (meal: Meal) => void;
   clear: () => void;
 }
 
-const useOrderStore = create<OrderState>()((set) => ({
+const useOrderStore = create<OrderState>()((set, get) => ({
   order: [],
-  add: (item: OrderItem) => set((state) => ({ order: [...state.order, item] })),
-  remove: (item: OrderItem) =>
+  add: (meal: Meal) => {
+    if (get().order.some((i) => i.meal.id === meal.id)) {
+      // bump up quantity
+      set((state) => ({
+        order: state.order.map((i) => {
+          if (i.meal.id === meal.id) {
+            return {
+              ...i,
+              quantity: i.quantity + 1,
+            };
+          }
+          return i;
+        }),
+      }));
+
+      return;
+    }
+
     set((state) => ({
-      order: state.order.filter((i) => i.id !== item.id),
-    })),
+      order: [...state.order, { id: meal.id, meal, quantity: 1 }],
+    }));
+  },
+  remove: (meal: Meal) => {
+    if (get().order.find((i) => i.meal.id === meal.id)?.quantity === 1) {
+      set((state) => ({
+        order: state.order.filter((i) => i.meal.id !== meal.id),
+      }));
+      return;
+    }
+
+    set((state) => ({
+      order: state.order.map((i) => {
+        if (i.meal.id === meal.id) {
+          return {
+            ...i,
+            quantity: i.quantity - 1,
+          };
+        }
+        return i;
+      }),
+    }));
+  },
   clear: () => set({ order: [] }),
 }));
-
-export const useRestaurantStore = create((set) => ({
-    restaurants: [],
-    filteredRestaurants: [],
-    categories: [],
-    meals: [],
-    selectedCategories: [],
-    selectedRestaurant: null,
-    selectRestaurant: async (id) => {
-        const restaurant = await restaurants.getRestaurant(id);
-        set({
-            selectedRestaurant: restaurant,
-            meals: restaurant?.meals || [],
-        });
-    },
-    setRestaurants: (data) => {
-        set({
-            restaurants: data,
-            filteredRestaurants: data,
-            categories: Array.from(
-                new Set(data.flatMap((restaurant) => restaurant.categories))
-            ).sort(),
-        });
-    },
-    updateFilters: (selectedCategories) =>
-        set((state) => {
-            const filtered = selectedCategories.length
-                ? state.restaurants.filter((restaurant) =>
-                    restaurant.categories.some((category) =>
-                        selectedCategories.includes(category)
-                    )
-                )
-                : state.restaurants;
-            return {
-                selectedCategories,
-                filteredRestaurants: filtered,
-            };
-        }),
-}));
-
-
-//For debugging useRestaurantStore in browser console
-if (typeof window !== "undefined") {
-    window.useRestaurantStore = useRestaurantStore;
-}
 
 export { useOrderStore };
