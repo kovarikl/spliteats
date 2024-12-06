@@ -2,11 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home } from "./pages/home/index.tsx";
-import { Checkout } from "./pages/checkout/index.tsx";
-import { Restaurants } from "./pages/restaurants/index.tsx";
-import { Meals } from "./pages/meals/index.tsx";
-import { SlaveCheckout } from "./pages/slave-checkout/index.tsx";
+import { Home } from "@/pages/home";
+import { Checkout } from "@/pages/checkout";
+import { Restaurants } from "@/pages/restaurants";
+import { Meals } from "@/pages/meals";
+import { SlaveCheckout } from "@/pages/slave-checkout";
 import { Provider } from "./components/ui/provider.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 

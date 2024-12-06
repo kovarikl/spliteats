@@ -9,56 +9,76 @@ interface OrderItem {
 
 interface OrderState {
   order: OrderItem[];
-  add: (meal: Meal) => void;
+  restaurantId: string | null;
+  add: (meal: Meal, restaurantId: string) => void;
   remove: (meal: Meal) => void;
   clear: () => void;
 }
 
 const useOrderStore = create<OrderState>()((set, get) => ({
   order: [],
-  add: (meal: Meal) => {
-    if (get().order.some((i) => i.meal.id === meal.id)) {
-      // bump up quantity
-      set((state) => ({
-        order: state.order.map((i) => {
-          if (i.meal.id === meal.id) {
-            return {
-              ...i,
-              quantity: i.quantity + 1,
-            };
-          }
-          return i;
-        }),
-      }));
+  restaurantId: null,
 
+  add: (meal: Meal, restaurantId: string) => {
+    const currentRestaurantId = get().restaurantId;
+    const uniqueId = `${restaurantId}-${meal.id}`;
+
+    if (!currentRestaurantId) {
+      set((state) => ({
+        order: [...state.order, { id: uniqueId, meal, quantity: 1 }],
+        restaurantId,
+      }));
+      return;
+    }
+
+    if (currentRestaurantId !== restaurantId) {
+      alert("You can only add items from one restaurant at a time.");
+      return;
+    }
+
+    if (get().order.some((i) => i.id === uniqueId)) {
+      set((state) => ({
+        order: state.order.map((i) =>
+            i.id === uniqueId ? { ...i, quantity: i.quantity + 1 } : i
+        ),
+      }));
       return;
     }
 
     set((state) => ({
-      order: [...state.order, { id: meal.id, meal, quantity: 1 }],
+      order: [...state.order, { id: uniqueId, meal, quantity: 1 }],
     }));
   },
+
+
   remove: (meal: Meal) => {
-    if (get().order.find((i) => i.meal.id === meal.id)?.quantity === 1) {
-      set((state) => ({
-        order: state.order.filter((i) => i.meal.id !== meal.id),
-      }));
+    const { order } = get();
+    const uniqueId = `${meal.restaurantId}-${meal.id}`;
+
+    if (order.find((i) => i.id === uniqueId)?.quantity === 1) {
+      set((state) => {
+        const updatedOrder = state.order.filter((i) => i.id !== uniqueId);
+
+        return {
+          order: updatedOrder,
+          restaurantId: updatedOrder.length === 0 ? null : state.restaurantId,
+        };
+      });
       return;
     }
-
     set((state) => ({
-      order: state.order.map((i) => {
-        if (i.meal.id === meal.id) {
-          return {
-            ...i,
-            quantity: i.quantity - 1,
-          };
-        }
-        return i;
-      }),
+      order: state.order.map((i) =>
+          i.id === uniqueId ? { ...i, quantity: i.quantity - 1 } : i
+      ),
     }));
   },
-  clear: () => set({ order: [] }),
+
+
+  clear: () =>
+      set({
+        order: [],
+        restaurantId: null,
+      }),
 }));
 
 export { useOrderStore };

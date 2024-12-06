@@ -5,109 +5,134 @@ import {
   DialogBody,
   DialogContent,
   DialogHeader,
-  DialogRoot,
   DialogTitle,
+  DialogRoot,
   DialogTrigger,
+  DialogFooter,
   DialogActionTrigger,
   DialogCloseTrigger,
-  DialogFooter,
 } from "../ui/dialog";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
+
+// Define the type for Nominatim suggestions
+type NominatimSuggestion = {
+  display_name: string;
+  lat: string;
+  lon: string;
+};
+
+const fetchSuggestions = async (query: string): Promise<NominatimSuggestion[]> => {
+  const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          query
+      )}&format=json&addressdetails=1&limit=5&countrycodes=cz`
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch suggestions");
+  }
+  return response.json();
+};
 
 const AddressSelector = () => {
-  // const [isOpen, setIsOpen] = useState(false);
-  const [address, setAddress] = useState("");
-  //  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [query, setQuery] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<string>("");
 
-  //  const { isLoaded } = useLoadScript({
-  //    googleMapsApiKey: "", // Replace with your API key
-  //  });
+  const handleInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const userInput = e.target.value;
+    setQuery(userInput);
 
-  //  const openModal = () => setIsOpen(true);
-  //  const closeModal = () => setIsOpen(false);
+    if (userInput.trim().length > 2) {
+      try {
+        const results = await fetchSuggestions(userInput);
+        setSuggestions(results);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
 
-  //  const handleMapClick = (event) => {
-  //    setSelectedLocation({
-  //      lat: event.latLng.lat(),
-  //      lng: event.latLng.lng(),
-  //    });
-  //  };
+  const handleSelectSuggestion = (suggestion: NominatimSuggestion) => {
+    setSelectedAddress(suggestion.display_name);
+    setQuery(suggestion.display_name);
+    setSuggestions([]);
+  };
 
-  //  const handleConfirm = () => {
-  //    console.log("Selected Address:", address || selectedLocation);
-  //    closeModal();
-  //  };
-
-  // TODO: maybe leave input, add some autocomplete, modal on map
   return (
-    <DialogRoot>
-      <DialogTrigger asChild>
-        <InputGroup
-          flex="1"
-          startElement={<LuMapPin size={18} />}
-          justifySelf="center"
-        >
-          <Input
-            placeholder="Select address ..."
-            borderRadius="lg"
-            width={400}
-            variant="subtle"
-            // onFocus={(e) => e.stopPropagation()}
-            // TODO: block inputing
-          />
-        </InputGroup>
-        {/* <Button variant="outline" size="sm">
-          Open Dialog
-        </Button> */}
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Dialog Title</DialogTitle>
-        </DialogHeader>
-        <DialogBody>
-          {/* <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p> */}
-          <VStack gap={4}>
+      <DialogRoot>
+        <DialogTrigger asChild>
+          <InputGroup
+              flex="1"
+              startElement={<LuMapPin size={18} />}
+              justifySelf="center"
+          >
             <Input
-              placeholder="Type address manually"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+                placeholder="Select address ..."
+                borderRadius="lg"
+                width={400}
+                variant="subtle"
+                value={selectedAddress}
+                readOnly
             />
-            {/* <Box
-              width="100%"
-              height="300px"
-              borderWidth="1px"
-              borderRadius="md"
-            >
-              {isLoaded ? (
-                <GoogleMap
-                  mapContainerStyle={{
+          </InputGroup>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Search for an Address</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <VStack gap={4}>
+              <Input
+                  placeholder="Type an address"
+                  value={query}
+                  onChange={handleInputChange}
+              />
+              <div
+                  style={{
                     width: "100%",
-                    height: "100%",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    maxHeight: "200px",
+                    overflowY: "auto",
                   }}
-                  zoom={12}
-                  center={{ lat: 48.8566, lng: 2.3522 }} // Default to Paris; replace as needed
-                  onClick={handleMapClick}
-                >
-                  {selectedLocation && <Marker position={selectedLocation} />}
-                </GoogleMap>
-              ) : (
-                <p>Loading map...</p>
-              )}
-            </Box> */}
-          </VStack>
-        </DialogBody>
-        <DialogFooter>
-          <DialogActionTrigger asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogActionTrigger>
-          <Button>Save</Button>
-        </DialogFooter>
-        <DialogCloseTrigger />
-      </DialogContent>
-    </DialogRoot>
+              >
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {suggestions.map((suggestion, index) => (
+                      <li
+                          key={index}
+                          style={{
+                            padding: "8px",
+                            cursor: "pointer",
+                            borderBottom: "1px solid #ddd",
+                            backgroundColor: "#fff",
+                            color: "#000",
+                          }}
+                          onClick={() => handleSelectSuggestion(suggestion)}
+                          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+                          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
+                      >
+                        {suggestion.display_name}
+                      </li>
+                  ))}
+                </ul>
+              </div>
+            </VStack>
+          </DialogBody>
+          <DialogFooter>
+            <DialogActionTrigger asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogActionTrigger>
+            <Button
+                onClick={() => console.log("Selected Address:", selectedAddress)}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+          <DialogCloseTrigger />
+        </DialogContent>
+      </DialogRoot>
   );
 };
 
