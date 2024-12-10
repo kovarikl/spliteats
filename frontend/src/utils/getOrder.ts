@@ -1,7 +1,7 @@
+import { API_URL } from "./const";
+
 const getOrder = async (orderId: string) => {
-  const response = await fetch(
-    `http://192.168.0.116:8000/api/orders/${orderId}`
-  );
+  const response = await fetch(`${API_URL}/orders/${orderId}`);
   if (!response.ok) {
     throw new Error("Failed to fetch order");
   }

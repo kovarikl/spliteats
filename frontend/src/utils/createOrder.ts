@@ -1,4 +1,5 @@
 import { OrderItem } from "@/stores/order";
+import { API_URL } from "./const";
 
 const createOrder = async (order: OrderItem[]) => {
   const payload = {
@@ -15,7 +16,7 @@ const createOrder = async (order: OrderItem[]) => {
     ),
   };
 
-  const response = await fetch("http://localhost:8000/api/orders", {
+  const response = await fetch(`${API_URL}/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

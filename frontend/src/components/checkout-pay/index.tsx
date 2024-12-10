@@ -328,10 +328,10 @@ const CheckoutPay = ({ orderId, onOrderComplete }: Props) => {
           Shared payment
         </Text>
         <QRCode
-          value={`http://192.168.0.116:5173/slave-checkout/${dataOrder?.id}?split=${splitCount}`}
+          value={`http://${location.host}/slave-checkout/${dataOrder?.id}?split=${splitCount}`}
         />
         <ClipboardRoot
-          value={`http://192.168.0.116:5173/slave-checkout/${dataOrder?.id}?split=${splitCount}`}
+          value={`http://${location.host}/slave-checkout/${dataOrder?.id}?split=${splitCount}`}
           timeout={2000}
         >
           <ClipboardButton />
