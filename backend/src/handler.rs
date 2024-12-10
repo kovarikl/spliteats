@@ -70,9 +70,11 @@ async fn pay_order_handler(
         let order_item = order_item.expect("Order item should exist");
         order_item.quantity_paid += item.quantity_paid;
 
-        if order_item.quantity_paid == order_item.quantity {
-            order.status = OrderStatus::Completed;
-        }
+
+    }
+
+    if (order.items.iter().all(|item| item.quantity == item.quantity_paid)) {
+        order.status = OrderStatus::Completed;
     }
 
     HttpResponse::Ok().json(order)
