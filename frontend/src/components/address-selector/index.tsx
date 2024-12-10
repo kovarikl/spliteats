@@ -1,5 +1,5 @@
 import { InputGroup } from "../ui/input-group";
-import { Button, Input, VStack } from "@chakra-ui/react";
+import { Button, Input, Spinner, VStack } from "@chakra-ui/react";
 import { LuMapPin } from "react-icons/lu";
 import {
   DialogBody,
@@ -12,127 +12,114 @@ import {
   DialogActionTrigger,
   DialogCloseTrigger,
 } from "../ui/dialog";
-import { useState, ChangeEvent } from "react";
-
-// Define the type for Nominatim suggestions
-type NominatimSuggestion = {
-  display_name: string;
-  lat: string;
-  lon: string;
-};
-
-const fetchSuggestions = async (query: string): Promise<NominatimSuggestion[]> => {
-  const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          query
-      )}&format=json&addressdetails=1&limit=5&countrycodes=cz`
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch suggestions");
-  }
-  return response.json();
-};
+import { useState, useRef } from "react";
+import { useAppStateStore } from "@/stores/appState";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getNominatimSuggestions,
+  NominatimSuggestion,
+} from "@/utils/getNominatimSuggestions";
 
 const AddressSelector = () => {
-  const [query, setQuery] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const selectedAddress = useAppStateStore((state) => state.deliveryAddress);
+  const setSelectedAddress = useAppStateStore((state) => state.setAddress);
+  const [query, setQuery] = useState<string>(selectedAddress ?? "");
 
-  const handleInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const userInput = e.target.value;
-    setQuery(userInput);
+  const { data, isLoading } = useQuery({
+    queryKey: ["suggestion", query],
+    queryFn: () => getNominatimSuggestions(query),
+  });
 
-    if (userInput.trim().length > 2) {
-      try {
-        const results = await fetchSuggestions(userInput);
-        setSuggestions(results);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      }
-    } else {
-      setSuggestions([]);
-    }
-  };
-
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const handleSelectSuggestion = (suggestion: NominatimSuggestion) => {
     setSelectedAddress(suggestion.display_name);
+
+    if (buttonRef.current) {
+      buttonRef.current.click();
+    }
+
     setQuery(suggestion.display_name);
-    setSuggestions([]);
+    sessionStorage.setItem("deliveryAddress", suggestion.display_name);
   };
 
   return (
-      <DialogRoot>
-        <DialogTrigger asChild>
-          <InputGroup
-              flex="1"
-              startElement={<LuMapPin size={18} />}
-              justifySelf="center"
-          >
+    <DialogRoot>
+      <DialogTrigger asChild>
+        <InputGroup
+          flex="1"
+          startElement={<LuMapPin size={18} />}
+          justifySelf="center"
+        >
+          <Input
+            placeholder="Select address ..."
+            borderRadius="lg"
+            width={400}
+            variant="subtle"
+            value={selectedAddress ?? ""}
+            readOnly
+          />
+        </InputGroup>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Search for an Address</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <VStack gap={4}>
             <Input
-                placeholder="Select address ..."
-                borderRadius="lg"
-                width={400}
-                variant="subtle"
-                value={selectedAddress}
-                readOnly
+              placeholder="Type an address"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
-          </InputGroup>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Search for an Address</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <VStack gap={4}>
-              <Input
-                  placeholder="Type an address"
-                  value={query}
-                  onChange={handleInputChange}
-              />
+            {isLoading && <Spinner />}
+            {data && !!data.length && (
               <div
-                  style={{
-                    width: "100%",
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    maxHeight: "200px",
-                    overflowY: "auto",
-                  }}
+                style={{
+                  width: "100%",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  maxHeight: "300px",
+                  overflowY: "auto",
+                }}
               >
                 <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  {suggestions.map((suggestion, index) => (
-                      <li
-                          key={index}
-                          style={{
-                            padding: "8px",
-                            cursor: "pointer",
-                            borderBottom: "1px solid #ddd",
-                            backgroundColor: "#fff",
-                            color: "#000",
-                          }}
-                          onClick={() => handleSelectSuggestion(suggestion)}
-                          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
-                      >
-                        {suggestion.display_name}
-                      </li>
+                  {data.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      style={{
+                        padding: "8px",
+                        cursor: "pointer",
+                        borderBottom:
+                          index < data.length - 1 ? "1px solid #ddd" : "none",
+                        backgroundColor: "#fff",
+                        color: "#000",
+                      }}
+                      onClick={() => handleSelectSuggestion(suggestion)}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.backgroundColor = "#f0f0f0")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.backgroundColor = "#fff")
+                      }
+                    >
+                      {suggestion.display_name}
+                    </li>
                   ))}
                 </ul>
               </div>
-            </VStack>
-          </DialogBody>
-          <DialogFooter>
-            <DialogActionTrigger asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogActionTrigger>
-            <Button
-                onClick={() => console.log("Selected Address:", selectedAddress)}
-            >
-              Save
+            )}
+          </VStack>
+        </DialogBody>
+        <DialogFooter>
+          <DialogActionTrigger asChild>
+            <Button variant="outline" ref={buttonRef}>
+              Cancel
             </Button>
-          </DialogFooter>
-          <DialogCloseTrigger />
-        </DialogContent>
-      </DialogRoot>
+          </DialogActionTrigger>
+        </DialogFooter>
+        <DialogCloseTrigger />
+      </DialogContent>
+    </DialogRoot>
   );
 };
 

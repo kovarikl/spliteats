@@ -9,8 +9,8 @@ import { Meals } from "@/pages/meals";
 import { SlaveCheckout } from "@/pages/slave-checkout";
 import { Provider } from "./components/ui/provider.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Theme } from "@chakra-ui/react";
 
-// TODO: theming, background colors, ...
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,7 +31,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/checkout",
+    path: "/checkout/:orderId",
     element: <Checkout />,
   },
   {
@@ -46,7 +46,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Provider>
-        <RouterProvider router={router} />
+        <Theme appearance="light">
+          <RouterProvider router={router} />
+        </Theme>
       </Provider>
     </QueryClientProvider>
   </StrictMode>

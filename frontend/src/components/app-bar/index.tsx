@@ -4,13 +4,15 @@ import { AddressSelector } from "../address-selector";
 import { AppLogo } from "../app-logo";
 import { Avatar } from "../ui/avatar";
 import { Cart } from "../cart";
+import { useAppStateStore } from "@/stores/appState";
 
 interface Props {
   lightweight?: boolean;
 }
 
-// TODO: generate some accounts, randomly, maybe save to local/session storage
 const AppBar = ({ lightweight }: Props) => {
+  const mockName = useAppStateStore((state) => state.name);
+
   return (
     <Box
       position="sticky"
@@ -32,11 +34,12 @@ const AppBar = ({ lightweight }: Props) => {
         {!lightweight && <AddressSelector />}
         <HStack justifySelf="end" gap={6}>
           <HStack gap="2">
-            <Avatar name="Jon Doe" size="md" />
+            <Avatar name={`${mockName.name} ${mockName.surname}`} size="md" />
             <Stack gap="0">
-              <Text fontWeight="medium">John Doe</Text>
+              <Text fontWeight="medium">{`${mockName.name} ${mockName.surname}`}</Text>
               <Text color="fg.muted" textStyle="sm">
-                john.doe@outlook.com
+                {`${mockName.name.toLocaleLowerCase()}.${mockName.surname.toLocaleLowerCase()}`}
+                @outlook.com
               </Text>
             </Stack>
           </HStack>

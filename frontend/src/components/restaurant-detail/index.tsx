@@ -1,3 +1,4 @@
+import { randomRestaurantsImg } from "@/data/randomRestaurantsImg";
 import { DayOfWeek, Restaurant } from "@/data/restaurants";
 import {
   Badge,
@@ -72,7 +73,7 @@ const RestaurantDetail = ({ restaurant }: Props) => {
               borderRadius="lg"
               height={56}
               width={56}
-              src="https://cdn.apartmenttherapy.info/image/upload/v1644622714/k/Photo/Large%20Packages/2022-03-KESS-Tools/food-storage-glass-containers-horizontal.jpg"
+              src={randomRestaurantsImg(restaurant.id)}
               alt={`${restaurant.name} thumbnail`}
             />
 
@@ -92,14 +93,14 @@ const RestaurantDetail = ({ restaurant }: Props) => {
 
             <VStack align="flex-start" gap={0} marginLeft={10}>
               <Text fontWeight="medium">Opening Hours</Text>
-              {Object.keys(restaurant.openingHours).map((day) => (
-                <HStack align="flex-start" gap={0}>
+              {Object.keys(restaurant.openingHours).map((day, i) => (
+                <HStack align="flex-start" gap={0} key={i}>
                   <Box width={40}>
-                    <Text key={`${day}-0`}>{day}</Text>
+                    <Text key={`${day}-${i}-0`}>{day}</Text>
                   </Box>
 
                   {openingHours[day as DayOfWeek].map((hours, index) => (
-                    <Text key={`${day}-1`} color="gray.600">
+                    <Text key={`${day}-${index}-1`} color="gray.600">
                       {index > 0 ? ", " : ""}
                       {hours[0]}: {hours[1]}
                     </Text>

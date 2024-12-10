@@ -4,6 +4,7 @@ import { FaDollarSign } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { Card } from "../card";
+import { randomRestaurantsImg } from "@/data/randomRestaurantsImg";
 
 interface Props {
   restaurant: RestaurantMetadata;
@@ -17,7 +18,7 @@ const RestaurantCard = ({ restaurant }: Props) => {
     <Link to={`/meals/${id}`}>
       <Card>
         <Image
-          src="https://cdn.apartmenttherapy.info/image/upload/v1644622714/k/Photo/Large%20Packages/2022-03-KESS-Tools/food-storage-glass-containers-horizontal.jpg"
+          src={randomRestaurantsImg(restaurant.id)}
           alt={`${name} restaurant`}
           height={150}
         />
