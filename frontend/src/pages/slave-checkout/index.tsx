@@ -151,7 +151,7 @@ const SlaveCheckout = () => {
       </Box>
 
       {!paid ? (
-        <Container p={4} mb={20}>
+        <Container p={4} pb={20}>
           <Text fontSize="xl" fontWeight="bold" mt={4} mb={4} p={0}>
             Select Meals to Pay
           </Text>
